@@ -1,0 +1,104 @@
+---
+title: "ToothGrowth data analysis."
+author: "Bosah Chude"
+date: "Friday, November 21, 2014"
+output: pdf_document
+---
+
+Solution to Statistical Inference course project (Section 2).
+
+##Q1. Load the ToothGrowth data and perform some basic exploratory data analyses 
+
+```{r}
+#Loading required library and datasets.
+library(datasets)
+library(ggplot2)
+data(ToothGrowth)
+
+#Preview the data
+head(ToothGrowth)
+
+#Subset the data by supplement and dosage
+suppVC1 <- ToothGrowth$len[1:10]
+suppVC2 <- ToothGrowth$len[11:20]
+suppVC3 <- ToothGrowth$len[21:30]
+
+suppOJ1 <- ToothGrowth$len[31:40]
+suppOJ2 <- ToothGrowth$len[41:50]
+suppOJ3 <- ToothGrowth$len[51:60]
+
+exPlot <- qplot(x = 1:10, y = suppVC1, geom = 'line', color = "VC - 0.5mg", 
+                ylab = "Tooth Heigth", xlab ="", main="Spread of tooth height") +   
+     geom_line(aes(y = suppVC2, color = "VC - 1.0mg")) +   
+     geom_line(aes(y = suppVC3, color = "VC - 2.0mg")) +   
+     geom_line(aes(y = suppOJ1, color = "OJ - 0.5mg")) +   
+     geom_line(aes(y = suppOJ2, color = "OJ - 1.0mg")) +   
+     geom_line(aes(y = suppOJ3, color = "OJ - 2.0mg")) +
+     guides(color=guide_legend(title="Supplement/Dosage"))
+exPlot
+
+suppMeans <- c(mean(suppVC1), mean(suppVC2), mean(suppVC3),
+               mean(suppOJ1), mean(suppOJ2), mean(suppOJ3))
+names(suppMeans) <- c("VC 0.5mg", "VC 1.0mg", "VC 2.0mg", "OJ 0.5mg", "OJ 1.0mg", "OJ 2.0mg")
+
+#Plot the average tooth heigth for each supplemt and dosage.
+meanPlot <- qplot(seq_along(suppMeans), suppMeans, geom = "bar", stat="identity",
+          fill = names(suppMeans), xlab ="", ylab = "Tooth Height",
+          main = "Average Tooth Heigth") +
+          guides(fill=guide_legend(title="Supplement/Dosage"))
+meanPlot
+```
+
+## Q2 . Provide a basic summary of the data.
+
+The mean and variance for each dataset is given below.
+```{r}
+#Average heigth in each case.
+suppMeans
+
+#Standerd Deviations
+suppSD <- c(sd(suppVC1), sd(suppVC2), sd(suppVC3), sd(suppOJ1), sd(suppOJ2), sd(suppOJ3))
+names(suppSD) <- c("VC 0.5", "VC 1.0", "VC 2.0", "OJ 0.5", "OJ 1.0", "OJ 2.0")
+suppSD
+```
+
+From the Exploratory graphs, the following observations can be drawn.
+
+* OJ at 2.0 doses is the most effective supplement and dosage combination
+* VC at 0.5 doses is the least effective supplement and dosage combination
+* OJ and VC both show increase in Tooth growth as the dosage increased
+
+## Q3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose.
+
+Assuming that they are not paired and their variance differ.
+
+```{r}
+#Comparing OJ and VJ for 0.5 dosage
+t.test(suppOJ1, suppVC1, paired = FALSE, var.equal = FALSE)
+
+#Comparing OJ and VJ for 0.5 dosage
+t.test(suppOJ2, suppVC2, paired = FALSE, var.equal = FALSE)
+
+#Comparing OJ and VJ for 0.5 dosage
+t.test(suppOJ3, suppVC3, paired = FALSE, var.equal = FALSE)
+```
+
+In the first two cases (dosage 0.5mg and 1.0mg), the p-value is very low indicating that both samples are very different. The null hypothesis is not true. 
+
+In the third case, the p-value is high, this suggest that if the dosage is amplified to 2.0mg, the results are similar for both supplements.
+
+For the first and second scenario, where the dosage is 0.5mg and 1.0mg respectively, the confidence intervals are above zero. This tells us that OJ is always better for those doses.
+
+In the third case (dosage 2.0mg) where the confidence interval is -3.79807 to 3.63807, there is mot much to choose between OJ and VC as they both produced similar results.
+
+## Q4.State your conclusions and the assumptions needed for your conclusions. 
+From the above analysis, the following conclusions can be drawn.
+
+* OJ is more efficient that VS overall
+* OJ is a much better supplement to VC especially in low dosages.
+
+These Conclusions are based on the following assumptions
+
+* The guinea pigs were selected by random draw and the sampling is not biased
+* The samples are not paired
+* The variances are inequal
